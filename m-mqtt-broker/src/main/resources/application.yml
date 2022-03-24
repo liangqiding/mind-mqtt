@@ -1,0 +1,10 @@
+server:
+  port: 30001
+spring:
+  application:
+    name: m-mqtt-broker
+  config:
+    activate:
+      on-profile:
+        - test
+
