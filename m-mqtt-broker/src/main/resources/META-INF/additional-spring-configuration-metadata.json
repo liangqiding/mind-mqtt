@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "mind.mqtt.broker.cluster-on",
+      "type": "java.lang.String",
+      "description": "Description for mind.mqtt.broker.cluster-on."
+    }
+  ] }
