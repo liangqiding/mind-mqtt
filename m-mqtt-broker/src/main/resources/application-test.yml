@@ -1,15 +1,19 @@
 mind:
-  mqtt.broker:
-    cluster-on: false
-    host: 127.0.0.1
-    id: m-links-mqtt-1
-    keep-alive: 60
-    mqtt-password-must: false
-    port: 1883
-    so-backlog: 511
-    so-keep-alive: true
-    ssl-enabled: false
-    ssl-password: 123456
-    use-epoll: false
-    webSocket-enabled: true
-    webSocket-port: 9995
+  mqtt:
+    broker:
+      host: 127.0.0.1
+      id: mind-mqtt-1
+      keep-alive: 60
+      port: 1883
+      so-backlog: 511
+      use-epoll: false
+
+# 日记配置
+logging:
+  file:
+    name: logs/${spring.application.name}/${spring.application.name}
+  logback:
+    rollingpolicy:
+      max-history: 3
+  level:
+    mind.mqtt: debug

@@ -1,6 +1,6 @@
-package m.mqtt.broker;
+package mind.mqtt.broker;
 
-import m.mqtt.broker.server.IBrokerServer;
+import mind.mqtt.broker.server.IBrokerServer;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -8,9 +8,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import javax.annotation.Resource;
 
 /**
+ *
+ * 多模块扫描所有 mind 开头的包,注入bean
+ *
  * @author qiding
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"mind"})
 public class MqttBrokerApplication implements ApplicationRunner {
 
     @Resource

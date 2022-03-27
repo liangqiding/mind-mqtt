@@ -1,4 +1,4 @@
-package m.mqtt.broker.channel.handler;
+package mind.mqtt.handler;
 
 import io.netty.channel.*;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.net.SocketAddress;
 import java.util.Optional;
-
 
 /**
  * description : TODO 异常处理
@@ -17,11 +16,11 @@ import java.util.Optional;
 @ChannelHandler.Sharable
 @Component
 @RequiredArgsConstructor
-public class ExceptionHandler extends ChannelDuplexHandler {
+public class MqttExceptionHandler extends ChannelDuplexHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("exceptionCaught,断开连接:", cause);
+        log.error("exceptionCaught,连接断开:", cause);
     }
 
     @Override

@@ -1,8 +1,40 @@
 {
   "properties": [
     {
-      "name": "mind.mqtt.broker.cluster-on",
+      "name": "mind.mqtt.broker.host",
       "type": "java.lang.String",
-      "description": "Description for mind.mqtt.broker.cluster-on."
+      "description": "启动地址.",
+      "defaultValue": "localhost"
+    },
+    {
+      "name": "mind.mqtt.broker.port",
+      "type": "java.lang.Integer",
+      "description": "监听端口号.",
+      "defaultValue": 1883
+    },
+    {
+      "name": "mind.mqtt.broker.id",
+      "type": "java.lang.String",
+      "description": "broker id,表示mqtt服务器的id.",
+      "defaultValue": "localhost"
+    },
+    {
+      "name": "mind.mqtt.broker.keep-alive",
+      "type": "java.lang.Integer",
+      "description": "心跳时间(秒).",
+      "defaultValue": 60
+    },
+    {
+      "name": "mind.mqtt.broker.so-backlog",
+      "type": "java.lang.Integer",
+      "description": "Socket参数, 存放已完成三次握手请求的队列最大长度, 默认511长度.",
+      "defaultValue": 511
+    },
+    {
+      "name": "mind.mqtt.broker.use-epoll",
+      "type": "java.lang.Boolean",
+      "description": "是否开启Epoll模式,linux上使用EpollEventLoopGroup会有较少的gc有更高级的特性，性能更好.",
+      "defaultValue": false
     }
-  ] }
+  ]
+}

@@ -5,12 +5,3 @@ spring:
     name: m-mqtt-broker
   profiles:
     active: test
-# 日记配置
-logging:
-  file:
-    name: logs/${spring.application.name}/${spring.application.name}
-  logback:
-    rollingpolicy:
-      max-history: 10
-  level:
-     m.mqtt.broker: debug

@@ -1,4 +1,4 @@
-package m.mqtt.broker.server;
+package mind.mqtt.broker.server;
 
 import com.alibaba.fastjson.JSON;
 import io.netty.bootstrap.ServerBootstrap;
@@ -11,10 +11,9 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import m.mqtt.broker.channel.ChannelInit;
-import m.mqtt.broker.config.BrokerProperties;
+import mind.mqtt.broker.channel.ChannelInit;
+import mind.mqtt.broker.config.BrokerProperties;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.PreDestroy;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -61,7 +60,7 @@ public class BrokerServer implements IBrokerServer {
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             // 绑定端口，开始接收进来的连接
             ChannelFuture future = bootstrap.bind().sync();
-            log.info("===netty服务器开始监听端口：" + address + ":" + brokerProperties.getPort());
+            log.info("mqttServer启动成功！开始监听端口：{}", brokerProperties.getPort());
             // 关闭channel和块，直到它被关闭
             future.channel().closeFuture().sync();
         } catch (Exception e) {

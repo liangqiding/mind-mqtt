@@ -1,4 +1,4 @@
-package m.mqtt.broker.server;
+package mind.mqtt.broker.server;
 
 import javax.annotation.PreDestroy;
 
