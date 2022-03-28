@@ -13,10 +13,20 @@
       "defaultValue": 1883
     },
     {
+      "name": "mind.mqtt.broker.username",
+      "type": "java.lang.String",
+      "description": "MQTT管理员账号."
+    },
+    {
+      "name": "mind.mqtt.broker.password",
+      "type": "java.lang.String",
+      "description": "MQTT管理员密码."
+    },
+    {
       "name": "mind.mqtt.broker.id",
       "type": "java.lang.String",
       "description": "broker id,表示mqtt服务器的id.",
-      "defaultValue": "localhost"
+      "defaultValue": "mind-mqtt-1"
     },
     {
       "name": "mind.mqtt.broker.keep-alive",
@@ -25,16 +35,40 @@
       "defaultValue": 60
     },
     {
-      "name": "mind.mqtt.broker.so-backlog",
-      "type": "java.lang.Integer",
-      "description": "Socket参数, 存放已完成三次握手请求的队列最大长度, 默认511长度.",
-      "defaultValue": 511
-    },
-    {
       "name": "mind.mqtt.broker.use-epoll",
       "type": "java.lang.Boolean",
       "description": "是否开启Epoll模式,linux上使用EpollEventLoopGroup会有较少的gc有更高级的特性，性能更好.",
       "defaultValue": false
+    },
+    {
+      "name": "redisson.cluster",
+      "type": "java.lang.String",
+      "description": "是否集群."
+    },
+    {
+      "name": "redisson.address",
+      "type": "java.lang.String",
+      "description": "集群模式，通过逗号分隔直接加地址即可，集群最少3个节点  参考：redis://127.0.0.1:6379,redis://127.0.0.2:6379,redis://127.0.0.3:6379."
+    },
+    {
+      "name": "redisson.connect-timeout",
+      "type": "java.lang.String",
+      "description": "连接超时时间."
+    },
+    {
+      "name": "redisson.password",
+      "type": "java.lang.String",
+      "description": "密码."
+    },
+    {
+      "name": "redisson.database",
+      "type": "java.lang.String",
+      "description": "数据库序号,只有单机模式下生效."
+    },
+    {
+      "name": "redisson.use-epoll",
+      "type": "java.lang.String",
+      "description": "传输模式 linux上开启会有更高的性能."
     }
   ]
 }

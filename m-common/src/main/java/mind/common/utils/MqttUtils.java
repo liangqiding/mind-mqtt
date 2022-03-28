@@ -11,9 +11,9 @@ public class MqttUtils {
     /**
      * 解码器校验,判断mqtt消息解析是否正常
      */
-    public static boolean isMqttMessage(ChannelHandlerContext ctx, MqttMessage msg) {
-        if (msg.decoderResult().isFailure()) {
-            Throwable cause = msg.decoderResult().cause();
+    public static boolean isMqttMessage(ChannelHandlerContext ctx, MqttMessage mqttMessage) {
+        if (mqttMessage.decoderResult().isFailure()) {
+            Throwable cause = mqttMessage.decoderResult().cause();
             if (cause instanceof MqttUnacceptableProtocolVersionException) {
                 ctx.writeAndFlush(MqttMessageFactory.newMessage(
                         new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
@@ -29,4 +29,5 @@ public class MqttUtils {
         }
         return true;
     }
+
 }

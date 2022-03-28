@@ -6,8 +6,6 @@ import lombok.experimental.Accessors;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-
 /**
  * 服务配置
  *
@@ -33,6 +31,16 @@ public class BrokerProperties {
     private String host;
 
     /**
+     * 管理员账号
+     */
+    private String username;
+
+    /**
+     * 管理员密码
+     */
+    private String password;
+
+    /**
      * SSL端口号
      */
     private Integer port;
@@ -46,10 +54,5 @@ public class BrokerProperties {
      * 是否开启Epoll模式,linux上使用EpollEventLoopGroup会有较少的gc有更高级的特性，性能更好
      */
     private Boolean useEpoll;
-
-    /**
-     * Socket参数, 存放已完成三次握手请求的队列最大长度, 默认511长度
-     */
-    private Integer soBacklog;
 
 }

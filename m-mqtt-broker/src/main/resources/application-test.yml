@@ -1,12 +1,31 @@
+# mqtt 配置
 mind:
   mqtt:
     broker:
       host: 127.0.0.1
       id: mind-mqtt-1
+      # 此账号密码用于管理员登录，其它客户端建议通过mind管理平台创建账号进行连接
+      username: admin
+      password: admin
       keep-alive: 60
       port: 1883
-      so-backlog: 511
+      # 传输模式linux上开启会有更高的性能
       use-epoll: false
+
+# redis 配置
+redisson:
+  # 是否集群
+  cluster: false
+  # 集群模式，通过逗号分隔直接加地址即可，集群最少3个节点  参考：redis://127.0.0.1:6379,redis://127.0.0.2:6379,redis://127.0.0.3:6379
+  address: redis://192.168.0.251:6379
+  # 连接超时时间
+  connect-timeout: 3
+  # 密码
+  password: 123456
+  # 数据库序号,只有单机模式下生效
+  database: 3
+  # 传输模式 linux上开启会有更高的性能
+  use-epoll: ${mind.mqtt.broker.use-epoll}
 
 # 日记配置
 logging:

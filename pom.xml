@@ -5,12 +5,12 @@
     <packaging>pom</packaging>
     <modules>
         <module>m-mqtt-broker</module>
-        <module>m-mqtt-codec</module>
         <module>m-mqtt-store</module>
         <module>m-mqtt-model</module>
         <module>m-mqtt-client</module>
         <module>m-mqtt-handler</module>
         <module>m-common</module>
+        <module>m-mqtt-auth</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -35,6 +35,7 @@
         <hutool-all.version>5.5.6</hutool-all.version>
         <fastjson.version>1.2.75</fastjson.version>
         <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
+        <redisson.version>3.14.0</redisson.version>
     </properties>
 
     <!-- 通用依赖 -->
@@ -77,6 +78,31 @@
                 <groupId>mind.mqtt</groupId>
                 <artifactId>m-mqtt-handler</artifactId>
                 <version>${mind-mqtt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>mind.mqtt</groupId>
+                <artifactId>m-common</artifactId>
+                <version>${mind-mqtt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>mind.mqtt</groupId>
+                <artifactId>m-mqtt-model</artifactId>
+                <version>${mind-mqtt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>mind.mqtt</groupId>
+                <artifactId>m-mqtt-auth</artifactId>
+                <version>${mind-mqtt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>mind.mqtt</groupId>
+                <artifactId>m-mqtt-store</artifactId>
+                <version>${mind-mqtt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson</artifactId>
+                <version>${redisson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

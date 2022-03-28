@@ -16,6 +16,7 @@ import mind.common.utils.MqttUtils;
 import mind.mqtt.handler.protocol.MqttProcess;
 import mind.mqtt.handler.protocol.impl.ConnectProcess;
 import org.springframework.stereotype.Component;
+
 import java.util.Map;
 
 
@@ -37,32 +38,62 @@ public class MqttMessageHandler extends SimpleChannelInboundHandler<MqttMessage>
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, MqttMessage mqttMessage) throws Exception {
-        log.info("channelRead0:" + mqttMessage.payload().toString());
+        log.debug("\n");
+        log.debug("channelId:" + ctx.channel().id());
         // 判断 mqtt 消息解析是否正常
         if (!MqttUtils.isMqttMessage(ctx, mqttMessage)) {
             return;
         }
-        switch (mqttMessage.fixedHeader().messageType()){
+        log.debug("协议类型:{}", mqttMessage.fixedHeader().messageType().name());
+        switch (mqttMessage.fixedHeader().messageType()) {
             case CONNECT:
                 mqttProcessMap.get("connectProcess").process(ctx, mqttMessage);
                 break;
+            case CONNACK:
+                mqttProcessMap.get("conAckProcess").process(ctx, mqttMessage);
+                break;
+            case PUBLISH:
+                mqttProcessMap.get("pubProcess").process(ctx, mqttMessage);
+                break;
+            case PUBACK:
+                mqttProcessMap.get("pubAckProcess").process(ctx, mqttMessage);
+                break;
+            case PUBREC:
+                mqttProcessMap.get("pubRecProcess").process(ctx, mqttMessage);
+                break;
+            case PUBREL:
+                mqttProcessMap.get("pubRelProcess").process(ctx, mqttMessage);
+                break;
+            case PUBCOMP:
+                mqttProcessMap.get("pubCompProcess").process(ctx, mqttMessage);
+                break;
+            case SUBSCRIBE:
+                mqttProcessMap.get("subscribeProcess").process(ctx, mqttMessage);
+                break;
+            case UNSUBSCRIBE:
+                mqttProcessMap.get("unsubscribeProcess").process(ctx, mqttMessage);
+                break;
+            case PINGREQ:
+                mqttProcessMap.get("pingRegProcess").process(ctx, mqttMessage);
+                break;
             case DISCONNECT:
+                mqttProcessMap.get("disconnectProcess").process(ctx, mqttMessage);
                 break;
             default:
+                log.error("未知的消息协议");
                 break;
         }
-        MqttMessageType connack = MqttMessageType.CONNACK;
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         final String clientId = (String) ctx.channel().attr(AttributeKey.valueOf("clientId")).get();
-        log.warn("===频道无效channelInactive:" + clientId);
+        log.warn("频道无效,channelId：{}", clientId);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        log.info("channelActive:" + ctx.name());
+        log.info("正在建立连接,channelId：{}", ctx.channel().id());
         super.channelActive(ctx);
     }
 

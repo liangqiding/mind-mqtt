@@ -15,8 +15,11 @@ public interface IBrokerServer {
      */
     void start() throws Exception;
 
+
     /**
      * 优雅的结束服务器
+     *
+     * @throws InterruptedException 提前中断异常
      */
     @PreDestroy
     void destroy() throws InterruptedException;

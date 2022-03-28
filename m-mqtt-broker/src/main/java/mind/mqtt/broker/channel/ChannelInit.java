@@ -6,6 +6,7 @@ import io.netty.handler.codec.mqtt.MqttDecoder;
 import io.netty.handler.codec.mqtt.MqttEncoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.RequiredArgsConstructor;
+import mind.mqtt.broker.config.BrokerProperties;
 import mind.mqtt.handler.MqttExceptionHandler;
 import mind.mqtt.handler.MqttMessageHandler;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ChannelInit extends ChannelInitializer<SocketChannel> {
 
+    private final BrokerProperties brokerProperties;
     /**
      * IO处理程序
      */
@@ -33,8 +35,8 @@ public class ChannelInit extends ChannelInitializer<SocketChannel> {
     @Override
     protected void initChannel(SocketChannel channel) {
         channel.pipeline()
-                // 添加心跳
-                .addLast("idleStateHandler", new IdleStateHandler(10, 0, 0))
+                // 添加心跳 读超时、写超时、读/写超时
+                .addLast("idleStateHandler", new IdleStateHandler(brokerProperties.getKeepAlive(), 0, 0))
                 // 添加mqtt解码器
                 .addLast("mqttDecoder", new MqttDecoder())
                 // 添加mqtt编码器
