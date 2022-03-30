@@ -48,7 +48,7 @@
     {
       "name": "redisson.address",
       "type": "java.lang.String",
-      "description": "集群模式，通过逗号分隔直接加地址即可，集群最少3个节点  参考：redis://127.0.0.1:6379,redis://127.0.0.2:6379,redis://127.0.0.3:6379."
+      "description": "数组格式，若开启集群模式，最少配置3个节点."
     },
     {
       "name": "redisson.connect-timeout",

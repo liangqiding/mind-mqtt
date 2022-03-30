@@ -16,13 +16,14 @@ mind:
 redisson:
   # 是否集群
   cluster: false
-  # 集群模式，通过逗号分隔直接加地址即可，集群最少3个节点  参考：redis://127.0.0.1:6379,redis://127.0.0.2:6379,redis://127.0.0.3:6379
-  address: redis://192.168.0.251:6379
+  # 数组格式，参考<yml配置数组>，若开启集群模式，最少配置3个节点
+  address:
+       - redis://192.168.0.251:6379
   # 连接超时时间
   connect-timeout: 3
   # 密码
   password: 123456
-  # 数据库序号,只有单机模式下生效
+  # redis数据库序号,只有单机模式下生效
   database: 3
   # 传输模式 linux上开启会有更高的性能
   use-epoll: ${mind.mqtt.broker.use-epoll}

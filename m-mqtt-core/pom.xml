@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>m-mqtt-store</artifactId>
+    <artifactId>m-mqtt-core</artifactId>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -18,16 +18,24 @@
 
     <dependencies>
         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+        </dependency>
+        <dependency>
             <groupId>mind.mqtt</groupId>
             <artifactId>m-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.redisson</groupId>
-            <artifactId>redisson</artifactId>
+            <groupId>mind.mqtt</groupId>
+            <artifactId>m-mqtt-model</artifactId>
         </dependency>
         <dependency>
             <groupId>mind.mqtt</groupId>
-            <artifactId>m-mqtt-model</artifactId>
+            <artifactId>m-mqtt-auth</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mind.mqtt</groupId>
+            <artifactId>m-mqtt-store</artifactId>
         </dependency>
     </dependencies>
 </project>

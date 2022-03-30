@@ -8,9 +8,10 @@
         <module>m-mqtt-store</module>
         <module>m-mqtt-model</module>
         <module>m-mqtt-client</module>
-        <module>m-mqtt-handler</module>
         <module>m-common</module>
         <module>m-mqtt-auth</module>
+        <module>m-mqtt-core</module>
+        <module>m-mqtt-monitor</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -76,7 +77,7 @@
             </dependency>
             <dependency>
                 <groupId>mind.mqtt</groupId>
-                <artifactId>m-mqtt-handler</artifactId>
+                <artifactId>m-mqtt-core</artifactId>
                 <version>${mind-mqtt.version}</version>
             </dependency>
             <dependency>
@@ -100,28 +101,15 @@
                 <version>${mind-mqtt.version}</version>
             </dependency>
             <dependency>
+                <groupId>mind.mqtt</groupId>
+                <artifactId>m-mqtt-monitor</artifactId>
+                <version>${mind-mqtt.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson</artifactId>
                 <version>${redisson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
 </project>

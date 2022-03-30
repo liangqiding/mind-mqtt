@@ -21,5 +21,9 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
         </dependency>
+        <dependency>
+            <groupId>mind.mqtt</groupId>
+            <artifactId>m-common</artifactId>
+        </dependency>
     </dependencies>
 </project>

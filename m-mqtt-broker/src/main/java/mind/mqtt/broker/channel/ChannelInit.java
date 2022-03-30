@@ -6,9 +6,10 @@ import io.netty.handler.codec.mqtt.MqttDecoder;
 import io.netty.handler.codec.mqtt.MqttEncoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.RequiredArgsConstructor;
-import mind.mqtt.broker.config.BrokerProperties;
-import mind.mqtt.handler.MqttExceptionHandler;
-import mind.mqtt.handler.MqttMessageHandler;
+import mind.common.constant.NettyConstant;;
+import mind.model.config.BrokerProperties;
+import mind.mqtt.core.handler.MqttExceptionHandler;
+import mind.mqtt.core.handler.MqttMessageHandler;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,6 +21,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ChannelInit extends ChannelInitializer<SocketChannel> {
 
+    /**
+     * 配置参数
+     */
     private final BrokerProperties brokerProperties;
     /**
      * IO处理程序
@@ -36,15 +40,15 @@ public class ChannelInit extends ChannelInitializer<SocketChannel> {
     protected void initChannel(SocketChannel channel) {
         channel.pipeline()
                 // 添加心跳 读超时、写超时、读/写超时
-                .addLast("idleStateHandler", new IdleStateHandler(brokerProperties.getKeepAlive(), 0, 0))
+                .addLast(NettyConstant.IDLE, new IdleStateHandler(0, 0, brokerProperties.getKeepAlive()))
                 // 添加mqtt解码器
                 .addLast("mqttDecoder", new MqttDecoder())
                 // 添加mqtt编码器
                 .addLast("mqttEncoder", MqttEncoder.INSTANCE)
                 // 添加mqtt消息处理器
-                .addLast(mqttMessageHandler.getClass().getSimpleName(), mqttMessageHandler)
+                .addLast("mqttMessageHandler", mqttMessageHandler)
                 // 添加异常处理器
-                .addLast(mqttExceptionHandler.getClass().getSimpleName(), mqttExceptionHandler);
+                .addLast("mqttExceptionHandler", mqttExceptionHandler);
     }
 
 
