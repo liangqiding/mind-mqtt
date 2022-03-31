@@ -4,6 +4,8 @@ import cn.hutool.core.util.StrUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
 import lombok.RequiredArgsConstructor;
+import mind.common.utils.TopicUtil;
+import mind.model.entity.Subscribe;
 import mind.mqtt.core.handler.protocol.MqttProcess;
 import mind.mqtt.store.channel.ChannelStore;
 import mind.mqtt.store.mqttStore.impl.MqttSessionStore;
@@ -29,22 +31,31 @@ public class SubscribeProcess implements MqttProcess {
         String clientId = ChannelStore.getClientId(ctx);
         List<Integer> grantedQosList = new ArrayList<>();
         List<String> subscribedTopicList = new ArrayList<>();
-        // 校验并缓存订阅
+        // 1. 校验并缓存订阅
         subscribeMsg.payload().topicSubscriptions().forEach(subscription -> {
-            String topicFilter = subscription.topicName();
-            MqttQoS mqttQoS = subscription.qualityOfService();
-            if (this.validTopicFilter(topicFilter)) {
-                grantedQosList.add(mqttQoS.value());
-                subscribedTopicList.add(topicFilter);
-                mqttSessionStore.addSubscribe(topicFilter, clientId, mqttQoS.value());
+            // topic 合法性校验
+            if (TopicUtil.validTopicFilter(subscription.topicName())) {
+                // 封装订阅实体
+                Subscribe subscribe = new Subscribe()
+                        .setTopicFilter(subscription.topicName())
+                        .setClientId(clientId)
+                        .setMqttQoS(subscription.qualityOfService().value());
+                // 记录订阅成功的qos
+                grantedQosList.add(subscribe.getMqttQoS());
+                // 记录成功订阅，用于下一步发布保留消息
+                subscribedTopicList.add(subscribe.getTopicFilter());
+                // 缓存到会话
+                mqttSessionStore.addSubscribe(subscribe);
             } else {
+                // 记录订阅失败的qos
                 grantedQosList.add(MqttQoS.FAILURE.value());
             }
         });
-        // 发布保留消息
+        // 2. 发布保留消息
         subscribedTopicList.forEach(s -> {
 
         });
+        // 3. 应答客户端
         ctx.writeAndFlush(subAckMessage(subscribeMsg.variableHeader().messageId(), grantedQosList));
     }
 
@@ -58,24 +69,5 @@ public class SubscribeProcess implements MqttProcess {
                 new MqttSubAckPayload(mqttQosList));
     }
 
-    /**
-     * topic校验
-     */
-    private boolean validTopicFilter(String topicFilter) {
-        // 以#或+符号开头的、以/符号结尾的订阅按非法订阅处理, 这里没有参考标准协议
-        if (StrUtil.startWith(topicFilter, '+') || StrUtil.endWith(topicFilter, '/')) {
-            return false;
-        }
-        if (StrUtil.contains(topicFilter, '#')) {
-            // 如果出现多个#符号的订阅按非法订阅处理
-            if (StrUtil.count(topicFilter, '#') > 1) {
-                return false;
-            }
-        }
-        if (StrUtil.contains(topicFilter, '+')) {
-            //如果+符号和/+字符串出现的次数不等的情况按非法订阅处理
-            return StrUtil.count(topicFilter, '+') == StrUtil.count(topicFilter, "/+");
-        }
-        return true;
-    }
+
 }

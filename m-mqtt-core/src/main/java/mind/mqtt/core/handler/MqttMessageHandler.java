@@ -46,6 +46,7 @@ public class MqttMessageHandler extends SimpleChannelInboundHandler<MqttMessage>
         log.debug("channelId:" + ctx.channel().id());
         // 判断 mqtt 消息解析是否正常
         if (!MqttUtils.isMqttMessage(ctx, mqttMessage)) {
+            log.error("不支持的协议版本");
             return;
         }
         log.debug("协议类型:{}", mqttMessage.fixedHeader().messageType().name());

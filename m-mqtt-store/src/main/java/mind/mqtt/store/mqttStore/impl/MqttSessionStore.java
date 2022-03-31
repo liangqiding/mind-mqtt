@@ -1,18 +1,23 @@
 package mind.mqtt.store.mqttStore.impl;
 
-
 import com.alibaba.fastjson.JSON;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import mind.common.utils.TopicUtil;
 import mind.model.entity.MqttSession;
 import mind.model.config.BrokerProperties;
+import mind.model.entity.Subscribe;
+import org.redisson.api.RMap;
+import org.redisson.api.RSet;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * mqtt 会话信息
@@ -21,6 +26,7 @@ import java.util.function.Supplier;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MqttSessionStore {
 
     private final RedissonClient redissonClient;
@@ -46,7 +52,7 @@ public class MqttSessionStore {
     /**
      * 已订阅的缓存key
      */
-    private final Function<String, String> MAP_SUBSCRIBED_KEY = topicFilter -> PREFIX.get() + subscribedMap + topicFilter;
+    private final Supplier<String> MAP_SUBSCRIBED_KEY = () -> PREFIX.get() + subscribedMap;
 
     /**
      * client已订阅的缓存，用于客户端离线，快速清除订阅
@@ -100,15 +106,34 @@ public class MqttSessionStore {
     /**
      * 添加订阅
      *
-     * @param clientId    客户端id
-     * @param topicFilter 订阅的topic
-     * @param mqttQoS     qos
+     * @param subscribe 订阅实体封装
      */
-    public void addSubscribe(String topicFilter, String clientId, int mqttQoS) {
+    public void addSubscribe(Subscribe subscribe) {
         // 缓存订阅
-        redissonClient.getMapCache(MAP_SUBSCRIBED_KEY.apply(topicFilter)).put(clientId, mqttQoS);
+        RMap<String, HashMap<String, Integer>> topicClientMap = redissonClient.getMap(MAP_SUBSCRIBED_KEY.get());
+        HashMap<String, Integer> clientMap = topicClientMap.getOrDefault(subscribe.getTopicFilter(), new HashMap<>());
+        clientMap.put(subscribe.getClientId(), subscribe.getMqttQoS());
+        topicClientMap.put(subscribe.getTopicFilter(), clientMap);
         // 双向保存,用于用户离线快速清除订阅
-        redissonClient.getSet(SET_CLIENT_SUBSCRIBED_KEY.apply(clientId)).add(topicFilter);
+        redissonClient.getSet(SET_CLIENT_SUBSCRIBED_KEY.apply(subscribe.getClientId())).add(subscribe.getTopicFilter());
+    }
+
+    /**
+     * 搜索topic
+     */
+    public List<Subscribe> searchTopic(String pubTopic) {
+        // 获取所有topicFilter
+        RMap<String, HashMap<String, Integer>> map = redissonClient.getMap(MAP_SUBSCRIBED_KEY.get());
+        List<Subscribe> subscribeList = new ArrayList<>();
+        // 筛选
+        map.entrySet().stream()
+                // 寻找相关的topic
+                .filter(keyMap -> TopicUtil.match(keyMap.getKey(), pubTopic))
+                // 获取订阅topic的client
+                .forEach(keyMap -> keyMap.getValue()
+                        // 重新封装client
+                        .forEach((clientId, qos) -> subscribeList.add(new Subscribe(clientId, qos))));
+        return subscribeList;
     }
 
     /**
@@ -118,7 +143,12 @@ public class MqttSessionStore {
      * @param topicFilter 订阅的topic
      */
     public void removeSub(String clientId, String topicFilter) {
-        redissonClient.getMapCache(MAP_SUBSCRIBED_KEY.apply(topicFilter)).remove(clientId);
+        // 清除订阅缓存
+        RMap<String, HashMap<String, Integer>> topicClientMap = redissonClient.getMap(MAP_SUBSCRIBED_KEY.get());
+        HashMap<String, Integer> clientMap = topicClientMap.get(topicFilter);
+        clientMap.remove(clientId);
+        topicClientMap.put(topicFilter, clientMap);
+        // 清除双向缓存
         redissonClient.getSet(SET_CLIENT_SUBSCRIBED_KEY.apply(clientId)).remove(topicFilter);
     }
 

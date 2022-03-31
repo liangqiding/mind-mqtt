@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -33,7 +34,7 @@ public class ChannelStore {
     /**
      * 客户端和频道绑定
      */
-    private final static HashMap<String, ChannelId> CLIENT_CHANNEL_MAP = new HashMap<>();
+    private final static ConcurrentHashMap<String, ChannelId> CLIENT_CHANNEL_MAP = new ConcurrentHashMap<>(16);
 
     /**
      * 存储频道
@@ -119,4 +120,5 @@ public class ChannelStore {
         Optional.ofNullable(getChannel(clientId))
                 .ifPresent(ChannelOutboundInvoker::close);
     }
+
 }

@@ -1,17 +1,9 @@
-package mind.mqtt.monitor;
+package mind.mqtt.monitor.system;
 
-
-import cn.hutool.system.oshi.CpuInfo;
 import cn.hutool.system.oshi.OshiUtil;
-import mind.mqtt.monitor.entity.SystemInfo;
-import oshi.hardware.ComputerSystem;
+import mind.model.entity.SystemInfo;
 import oshi.hardware.GlobalMemory;
-import oshi.hardware.HWDiskStore;
-import oshi.hardware.HardwareAbstractionLayer;
-import oshi.software.os.OperatingSystem;
-
 import java.text.DecimalFormat;
-import java.util.List;
 
 /**
  * @author qiding
@@ -27,9 +19,5 @@ public class SystemInfoUtils {
                 .setMemoryUsage(df.format((memory.getTotal()-memory.getAvailable())*100 / (double) memory.getTotal()))
                 .setCpuInfo(OshiUtil.getCpuInfo())
                 .setSystemName(OshiUtil.getOs().toString());
-    }
-
-    public static void main(String[] args) {
-        System.out.println(OshiUtil.getCpuInfo().toString());
     }
 }

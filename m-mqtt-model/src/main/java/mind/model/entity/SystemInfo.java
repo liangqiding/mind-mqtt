@@ -1,4 +1,4 @@
-package mind.mqtt.monitor.entity;
+package mind.model.entity;
 
 import cn.hutool.system.oshi.CpuInfo;
 import lombok.Data;

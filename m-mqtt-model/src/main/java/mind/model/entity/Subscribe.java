@@ -31,4 +31,11 @@ public class Subscribe implements Serializable {
      */
     private int mqttQoS;
 
+    public Subscribe() {
+    }
+
+    public Subscribe(String clientId, int mqttQoS) {
+        this.clientId = clientId;
+        this.mqttQoS = mqttQoS;
+    }
 }
