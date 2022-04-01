@@ -101,13 +101,13 @@ public class ConnectProcess implements MqttProcess {
         // 存储遗嘱消息
         if (willFlag) {
             willMessage = new Message()
-                    .setMessageId(1)
+                    .setPacketId(1)
                     .setDup(false)
                     .setMessageType(MqttMessageType.PUBLISH)
                     .setTopic(connectMsg.payload().willTopic())
                     .setQos(connectMsg.variableHeader().willQos())
                     .setRetain(connectMsg.variableHeader().isWillRetain())
-                    .setPayload(connectMsg.payload().willMessageInBytes());
+                    .setMessageBytes(connectMsg.payload().willMessageInBytes());
         }
         // 会话封装
         mqttSession

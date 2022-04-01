@@ -16,6 +16,7 @@ import java.io.Serializable;
 public class Message implements Serializable {
 
     private static final long serialVersionUID = 42L;
+
     /**
      * 事件触发所在节点
      */
@@ -24,7 +25,7 @@ public class Message implements Serializable {
     /**
      * MQTT 消息 ID
      */
-    private Integer messageId;
+    private Integer packetId;
 
     /**
      * 消息来源 客户端 id
@@ -64,12 +65,17 @@ public class Message implements Serializable {
     /**
      * 消息内容
      */
-    private byte[] payload;
+    private byte[] messageBytes;
 
     /**
-     * 存储时间
+     * 存储的时间
      */
     private long timestamp;
+
+    /**
+     * 有效时间
+     */
+    private long expireTime;
 
     /**
      * PUBLISH 消息到达 Broker 的时间 (ms)
