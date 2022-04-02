@@ -19,18 +19,17 @@ import java.util.function.UnaryOperator;
 @RequiredArgsConstructor
 @Slf4j
 @SuppressWarnings("ALL")
-public class RedisKey {
+public class BorkerKey {
 
     private final BrokerProperties brokerProperties;
-
-    private static String brokerId;
 
     /**
      * 初始化
      */
     @PostConstruct
     public void init() {
-        PREFIX = ROOT + brokerProperties.getId();
+        BROKER_ID = brokerProperties.getId();
+        PREFIX = ROOT + BROKER_ID;
         SESSION_KEY = PREFIX + SESSION;
         SUB_KEY = PREFIX + SUBSCRIBED;
         RETAIN_MSG_KEY = PREFIX + RETAIN_MSG;
@@ -49,6 +48,11 @@ public class RedisKey {
      * mqtt缓存的根节点
      */
     public final static String ROOT = "mind-mqtt:";
+
+    /**
+     * brokerId
+     */
+    private static String BROKER_ID;
 
     /**
      * broker缓存前缀，集群中用于区别本程序缓存

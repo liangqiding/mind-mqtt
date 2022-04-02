@@ -41,6 +41,7 @@ public class PubProcess implements MqttProcess {
 
     @Override
     public void process(ChannelHandlerContext ctx, MqttMessage mqttMessage) {
+        log.debug("publisher -->> broker------发布消息，请求转发");
         MqttPublishMessage pubMsg = (MqttPublishMessage) mqttMessage;
         MqttQoS mqttQoS = pubMsg.fixedHeader().qosLevel();
         boolean retain = pubMsg.fixedHeader().isRetain();
@@ -71,6 +72,7 @@ public class PubProcess implements MqttProcess {
                 Optional.of(packetId)
                         .filter(pId -> pId != -1)
                         .ifPresent(pId -> {
+                            log.debug("broker -->> publisher------回复客户端，发布确认（QoS 1，消息确认）");
                             this.sendPubAckMessage(ctx, pId);
                             mqttMessageDispatcher.publish(message);
                         });
@@ -83,6 +85,7 @@ public class PubProcess implements MqttProcess {
                             // 缓存消息
                             qos2MessageStore.put(message);
                             // 发送Rec，qos2第一步，告诉客户端发布已接收，等客户端回复REL，收到REL后再进行转发
+                            log.debug("broker -->> publisher------回复客户端，发布已接收（QoS 2，第一步）");
                             this.sendPubRecMessage(ctx, pId);
                         });
                 break;

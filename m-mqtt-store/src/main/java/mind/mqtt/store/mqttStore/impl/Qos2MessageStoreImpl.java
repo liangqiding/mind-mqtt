@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mind.common.utils.TopicUtil;
 import mind.model.entity.Message;
-import mind.mqtt.store.config.RedisKey;
+import mind.mqtt.store.config.BorkerKey;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ public class Qos2MessageStoreImpl {
      * qos2消息存储
      */
     public void put(Message message) {
-        RMapCache<Integer, Message> mapCache = redissonClient.getMapCache(RedisKey.QOS2_MSG_FUN.apply(message.getFromClientId()));
+        RMapCache<Integer, Message> mapCache = redissonClient.getMapCache(BorkerKey.QOS2_MSG_FUN.apply(message.getFromClientId()));
         if (message.getExpireTime() > 0) {
             mapCache.put(message.getPacketId(), message, message.getExpireTime(), TimeUnit.SECONDS);
         } else {
@@ -45,7 +45,7 @@ public class Qos2MessageStoreImpl {
      * @param brokerId 消息id
      */
     public Message getQos2Message(String clientId, int brokerId) {
-        RMapCache<Integer, Message> mapCache = redissonClient.getMapCache(RedisKey.QOS2_MSG_FUN.apply(clientId));
+        RMapCache<Integer, Message> mapCache = redissonClient.getMapCache(BorkerKey.QOS2_MSG_FUN.apply(clientId));
         return mapCache.get(brokerId);
 
     }
@@ -54,6 +54,6 @@ public class Qos2MessageStoreImpl {
      * 删除该消息
      */
     public void remove(String clientId, int brokerId) {
-        redissonClient.getMapCache(RedisKey.QOS2_MSG_FUN.apply(clientId)).remove(brokerId);
+        redissonClient.getMapCache(BorkerKey.QOS2_MSG_FUN.apply(clientId)).remove(brokerId);
     }
 }

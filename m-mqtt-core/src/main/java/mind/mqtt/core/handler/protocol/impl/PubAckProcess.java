@@ -21,7 +21,7 @@ public class PubAckProcess implements MqttProcess {
     @Override
     public void process(ChannelHandlerContext ctx, MqttMessage mqttMessage) {
         // 1. 释放消息缓存
-        log.debug("收到PUB-ACK报文报文,qos1完成");
+        log.debug("broker -->> publisher------收到PUB-ACK报文报文,qos1完成");
     }
 
 }

@@ -37,14 +37,14 @@ public class MqttMessageDispatcher {
             // 转发的qos取决于用户订阅
             MqttQoS mqttQoS = MqttQoS.valueOf(Math.min(message.getQos(), subscribe.getMqttQoS()));
             MqttPublishMessage publishMessage = publishMessage(message.setQos(mqttQoS.value()));
-            ChannelManage.sendByCid(subscribe.getClientId(), publishMessage);
             switch (mqttQoS) {
                 case AT_MOST_ONCE:
                 case AT_LEAST_ONCE:
+                    log.debug("broker -->> subscriber------开始转发qos0或qos1消息");
                     ChannelManage.sendByCid(subscribe.getClientId(), publishMessage);
                     break;
                 case EXACTLY_ONCE:
-                    log.info("qos2消息，启动重试管理，直到收到PUB-COM消息");
+                    log.debug("broker -->> subscriber------开始转发qos2消息消息");
                     ChannelManage.sendByCid(subscribe.getClientId(), publishMessage);
                     break;
                 case FAILURE:
@@ -58,6 +58,8 @@ public class MqttMessageDispatcher {
     private MqttPublishMessage publishMessage(Message message) {
         return (MqttPublishMessage) MqttMessageFactory.newMessage(
                 new MqttFixedHeader(MqttMessageType.PUBLISH, message.isDup(), MqttQoS.valueOf(message.getQos()), message.isRetain(), 0),
-                new MqttPublishVariableHeader(message.getTopic(), message.getPacketId()), Unpooled.buffer().writeBytes(message.getMessageBytes()));
+                new MqttPublishVariableHeader(message.getTopic(), message.getPacketId()), Unpooled.wrappedBuffer(message.getMessageBytes()));
     }
+
+
 }

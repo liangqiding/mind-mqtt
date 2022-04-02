@@ -6,12 +6,16 @@ import lombok.extern.slf4j.Slf4j;
 import mind.common.utils.TopicUtil;
 import mind.model.entity.MqttSession;
 import mind.model.entity.Subscribe;
-import mind.mqtt.store.config.RedisKey;
+import mind.mqtt.store.config.BorkerKey;
 import org.redisson.api.RMap;
+import org.redisson.api.RSet;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -30,7 +34,7 @@ public class MqttSessionStore {
      * 保存会话
      */
     public void saveSession(MqttSession mqttSession) {
-        redissonClient.getMap(RedisKey.SESSION_KEY)
+        redissonClient.getMap(BorkerKey.SESSION_KEY)
                 .put(mqttSession.getClientId(), mqttSession);
     }
 
@@ -38,7 +42,7 @@ public class MqttSessionStore {
      * 获取会话信息
      */
     public MqttSession getSession(String clientId) {
-        Object obj = redissonClient.getMap(RedisKey.SESSION_KEY).get(clientId);
+        Object obj = redissonClient.getMap(BorkerKey.SESSION_KEY).get(clientId);
         return Optional.ofNullable(obj)
                 .map(o -> JSON.parseObject(JSON.toJSONString(o), MqttSession.class))
                 .orElse(null);
@@ -49,7 +53,7 @@ public class MqttSessionStore {
      */
     public int getAllNodeSessionCount() {
         AtomicInteger count = new AtomicInteger(0);
-        redissonClient.getKeys().getKeysByPattern("*:" + RedisKey.SESSION)
+        redissonClient.getKeys().getKeysByPattern("*:" + BorkerKey.SESSION)
                 .forEach(key -> count.addAndGet(redissonClient.getMap(key).size()));
         return count.get();
     }
@@ -58,14 +62,14 @@ public class MqttSessionStore {
      * 销毁本broker的所有缓存
      */
     public void destroyCache() {
-        redissonClient.getKeys().deleteByPattern(RedisKey.PREFIX + "*");
+        redissonClient.getKeys().deleteByPattern(BorkerKey.PREFIX + "*");
     }
 
     /**
      * 删除会话和订阅及所有缓存
      */
     public void delSessionAll(String clientId) {
-        redissonClient.getMap(RedisKey.SESSION_KEY).remove(clientId);
+        redissonClient.getMap(BorkerKey.SESSION_KEY).remove(clientId);
         this.removeSubAll(clientId);
     }
 
@@ -76,12 +80,12 @@ public class MqttSessionStore {
      */
     public void addSubscribe(Subscribe subscribe) {
         // 缓存订阅
-        RMap<String, HashMap<String, Integer>> topicClientMap = redissonClient.getMap(RedisKey.SUB_KEY);
+        RMap<String, HashMap<String, Integer>> topicClientMap = redissonClient.getMap(BorkerKey.SUB_KEY);
         HashMap<String, Integer> clientMap = topicClientMap.getOrDefault(subscribe.getTopicFilter(), new HashMap<>());
         clientMap.put(subscribe.getClientId(), subscribe.getMqttQoS());
         topicClientMap.put(subscribe.getTopicFilter(), clientMap);
         // 双向保存,用于用户离线快速清除订阅
-        redissonClient.getSet(RedisKey.CLI_SUB_KEY_FUN.apply(subscribe.getClientId())).add(subscribe.getTopicFilter());
+        redissonClient.getSet(BorkerKey.CLI_SUB_KEY_FUN.apply(subscribe.getClientId())).add(subscribe.getTopicFilter());
     }
 
     /**
@@ -89,7 +93,7 @@ public class MqttSessionStore {
      */
     public List<Subscribe> searchTopic(String pubTopic) {
         // 获取所有topicFilter
-        RMap<String, HashMap<String, Integer>> map = redissonClient.getMap(RedisKey.SUB_KEY);
+        RMap<String, HashMap<String, Integer>> map = redissonClient.getMap(BorkerKey.SUB_KEY);
         List<Subscribe> subscribeList = new ArrayList<>();
         // 筛选
         map.entrySet().stream()
@@ -105,17 +109,30 @@ public class MqttSessionStore {
     /**
      * 客户端主动取消订阅
      *
-     * @param clientId    客户端id
-     * @param topicFilter 订阅的topic
+     * @param clientId     客户端id
+     * @param topicFilters 订阅的topic
      */
-    public void removeSub(String clientId, String topicFilter) {
+    public void removeSub(String clientId, Object... topicFilters) {
+        List<String> topicFilterList = Arrays.stream(topicFilters).map(Objects::toString).collect(Collectors.toList());
+        this.removeSub(clientId, topicFilterList);
+    }
+
+    /**
+     * 客户端主动取消订阅
+     *
+     * @param clientId     客户端id
+     * @param topicFilters 订阅的topic
+     */
+    public void removeSub(String clientId, List<String> topicFilters) {
         // 清除订阅缓存
-        RMap<String, HashMap<String, Integer>> topicClientMap = redissonClient.getMap(RedisKey.SUB_KEY);
-        HashMap<String, Integer> clientMap = topicClientMap.get(topicFilter);
-        clientMap.remove(clientId);
-        topicClientMap.put(topicFilter, clientMap);
-        // 清除双向缓存
-        redissonClient.getSet(RedisKey.CLI_SUB_KEY_FUN.apply(clientId)).remove(topicFilter);
+        RMap<String, HashMap<String, Integer>> topicClientMap = redissonClient.getMap(BorkerKey.SUB_KEY);
+        topicFilters.forEach(topicFilter -> {
+            HashMap<String, Integer> clientMap = topicClientMap.get(topicFilter);
+            clientMap.remove(clientId);
+            topicClientMap.put(topicFilter, clientMap);
+            // 清除双向缓存
+            redissonClient.getSet(BorkerKey.CLI_SUB_KEY_FUN.apply(clientId)).remove(topicFilter);
+        });
     }
 
     /**
@@ -125,9 +142,10 @@ public class MqttSessionStore {
      */
     public void removeSubAll(String clientId) {
         // 获取client的已订阅列表，并移除订阅
-        redissonClient.getSet(RedisKey.CLI_SUB_KEY_FUN.apply(clientId))
-                .forEach(topicFilter -> this.removeSub(clientId, (String) topicFilter));
+        RSet<String> set = redissonClient.getSet(BorkerKey.CLI_SUB_KEY_FUN.apply(clientId));
+        Object[] topicFilters = set.toArray();
+        this.removeSub(clientId, topicFilters);
         // 清除已订阅列表
-        redissonClient.getSet(RedisKey.CLI_SUB_KEY_FUN.apply(clientId)).delete();
+        redissonClient.getSet(BorkerKey.CLI_SUB_KEY_FUN.apply(clientId)).delete();
     }
 }

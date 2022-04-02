@@ -19,12 +19,13 @@ public class PubRecProcess implements MqttProcess {
 
     @Override
     public void process(ChannelHandlerContext ctx, MqttMessage mqttMessage) {
-        log.debug("发布已接受（qos2 第一步）");
+        log.debug("subscriber -->> broker------发布已接受（qos2 第一步）");
         MqttMessageIdVariableHeader variableHeader = (MqttMessageIdVariableHeader) mqttMessage.variableHeader();
         // 1. qos2 获取发布的存储
-        // 2. 回复并存储PUB-REL消息，等待客户端回复PUB-COM
+        // 2. 回复PUB-REL并存储PUB-REL消息，等待客户端回复PUB-COM
         // 3.
         ctx.writeAndFlush(pubRelMessage(variableHeader.messageId()));
+        log.debug("broker -->> subscriber------回复客户端发布已释放 PUB-REL");
     }
 
     public MqttMessage pubRelMessage(int messageId) {

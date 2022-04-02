@@ -23,7 +23,7 @@ public class PubCompProcess implements MqttProcess {
     @Override
     public void process(ChannelHandlerContext ctx, MqttMessage mqttMessage) {
         // 1. 清空前面的确认消息存储 释放dupRel和msg
-        log.debug("收到PUB-COMP报文报文,qos2完成");
+        log.debug("subscriber -->> broker------收到PUB-COMP报文报文,客户端已成功接收qos2消息,qos2完成");
     }
 
 }

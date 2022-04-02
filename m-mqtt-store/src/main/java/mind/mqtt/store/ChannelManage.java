@@ -1,8 +1,7 @@
 package mind.mqtt.store;
 
-import io.netty.channel.ChannelHandlerContext;
-import mind.mqtt.store.channel.ChannelStore;
 
+import mind.mqtt.store.channel.ChannelStore;
 import java.util.Optional;
 
 /**

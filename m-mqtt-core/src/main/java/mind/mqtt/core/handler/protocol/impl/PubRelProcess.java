@@ -30,12 +30,12 @@ public class PubRelProcess implements MqttProcess {
 
     @Override
     public void process(ChannelHandlerContext ctx, MqttMessage mqttMessage) {
-        log.debug("发布已释放（qos2 第二步）PUB-REL");
+        log.debug("publisher -->> broker------发布已释放（qos2 第二步）PUB-REL");
         MqttMessageIdVariableHeader variableHeader = (MqttMessageIdVariableHeader) mqttMessage.variableHeader();
         int messageId = variableHeader.messageId();
         Message qos2Message = qos2MessageStore.getQos2Message(ChannelStore.getClientId(ctx), messageId);
-        log.info("===qos2Message=={}", JSON.toJSONString(qos2Message));
         mqttMessageDispatcher.publish(qos2Message);
+        log.debug("broker -->> publisher------回复客户端接收完成（qos2 第三步）PUB-COM");
         ctx.writeAndFlush(this.pubCompMessage(messageId));
     }
 
