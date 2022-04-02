@@ -36,7 +36,10 @@ public class MqttMessageDispatcher {
         subscribes.forEach(subscribe -> {
             // 转发的qos取决于用户订阅
             MqttQoS mqttQoS = MqttQoS.valueOf(Math.min(message.getQos(), subscribe.getMqttQoS()));
-            MqttPublishMessage publishMessage = publishMessage(message.setQos(mqttQoS.value()));
+            MqttPublishMessage publishMessage = publishMessage(message
+                    .setQos(mqttQoS.value())
+                    .setToClientId(subscribe.getClientId())
+            );
             switch (mqttQoS) {
                 case AT_MOST_ONCE:
                 case AT_LEAST_ONCE:

@@ -38,6 +38,11 @@ public class Message implements Serializable {
     private String fromUsername;
 
     /**
+     * 消息目标 客户端 id
+     */
+    private String toClientId;
+
+    /**
      * topic
      */
     private String topic;

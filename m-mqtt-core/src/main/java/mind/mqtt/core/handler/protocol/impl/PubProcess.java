@@ -63,7 +63,7 @@ public class PubProcess implements MqttProcess {
                 .setTopic(pubTopic);
         // 消息保存
         this.retainMessage(message);
-        // 应答
+        //
         switch (mqttQoS) {
             case AT_MOST_ONCE:
                 mqttMessageDispatcher.publish(message);
