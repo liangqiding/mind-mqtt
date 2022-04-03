@@ -33,6 +33,7 @@ public class BorkerKey {
         SESSION_KEY = PREFIX + SESSION;
         SUB_KEY = PREFIX + SUBSCRIBED;
         RETAIN_MSG_KEY = PREFIX + RETAIN_MSG;
+        PUB_DELAY_QUEUE_KEY = PREFIX + PUB_DEALY_QUEUE;
     }
 
     /**
@@ -43,6 +44,7 @@ public class BorkerKey {
     public final static String CLIENT_SUB = "clientSubSet";
     public final static String RETAIN_MSG = "retainMsgMap";
     public final static String QOS2_MSG = "qos2MsgMap";
+    public final static String PUB_DEALY_QUEUE = "pubDealyQueue";
 
     /**
      * mqtt缓存的根节点
@@ -70,10 +72,14 @@ public class BorkerKey {
     public static String SUB_KEY;
 
     /**
-     * 消息存储
+     * retain消息存储
      */
     public static String RETAIN_MSG_KEY;
 
+    /**
+     * 消息延时队列
+     */
+    public static String PUB_DELAY_QUEUE_KEY;
 
     /**
      * client已订阅的缓存key，用于客户端离线，快速清除订阅

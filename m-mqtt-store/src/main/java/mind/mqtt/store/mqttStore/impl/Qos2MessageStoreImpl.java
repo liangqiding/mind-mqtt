@@ -32,9 +32,9 @@ public class Qos2MessageStoreImpl {
     public void put(Message message) {
         RMapCache<Integer, Message> mapCache = redissonClient.getMapCache(BorkerKey.QOS2_MSG_FUN.apply(message.getFromClientId()));
         if (message.getExpireTime() > 0) {
-            mapCache.put(message.getPacketId(), message, message.getExpireTime(), TimeUnit.SECONDS);
+            mapCache.put(message.getMessageId(), message, message.getExpireTime(), TimeUnit.SECONDS);
         } else {
-            mapCache.put(message.getPacketId(), message);
+            mapCache.put(message.getMessageId(), message);
         }
     }
 

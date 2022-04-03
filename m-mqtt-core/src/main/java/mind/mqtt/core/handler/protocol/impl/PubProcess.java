@@ -52,9 +52,9 @@ public class PubProcess implements MqttProcess {
         byte[] messageBytes = ByteBufUtil.getBytes(pubMsg.payload());
         // 1. 权限判断，在 MQTT v3.1 和 v3.1.1 协议中，发布操作被拒绝后服务器无任何报文错误返回，这是协议设计的一个缺陷。但在 MQTT v5.0 协议上已经支持应答一个相应的错误报文。
         Message message = new Message()
-                .setPacketId(packetId)
+                .setMessageId(packetId)
                 .setRetain(retain)
-                .setMessageType(MqttMessageType.PUBLISH)
+                .setMessageType(MqttMessageType.PUBLISH.value())
                 .setDup(dup)
                 .setMessageBytes(messageBytes)
                 .setTimestamp(System.currentTimeMillis())

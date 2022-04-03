@@ -2,9 +2,12 @@ package mind.mqtt.core.handler.protocol.impl;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.MqttMessage;
+import io.netty.handler.codec.mqtt.MqttMessageIdVariableHeader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mind.mqtt.core.handler.protocol.MqttProcess;
+import mind.mqtt.core.retry.PublishQos2Task;
+import mind.mqtt.store.channel.ChannelStore;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,10 +23,15 @@ import org.springframework.stereotype.Service;
 public class PubCompProcess implements MqttProcess {
 
 
+    private final PublishQos2Task publishQos2Task;
+
     @Override
     public void process(ChannelHandlerContext ctx, MqttMessage mqttMessage) {
-        // 1. 清空前面的确认消息存储 释放dupRel和msg
+        MqttMessageIdVariableHeader variableHeader = (MqttMessageIdVariableHeader) mqttMessage.variableHeader();
+        int messageId = variableHeader.messageId();
+        // 1. 清空前面的PUB-REL确认消息存储
         log.debug("subscriber -->> broker------收到PUB-COMP报文报文,客户端已成功接收qos2消息,qos2完成");
+
     }
 
 }

@@ -25,7 +25,7 @@ public class Message implements Serializable {
     /**
      * MQTT 消息 ID
      */
-    private Integer packetId;
+    private Integer messageId;
 
     /**
      * 消息来源 客户端 id
@@ -50,7 +50,7 @@ public class Message implements Serializable {
     /**
      * 消息类型
      */
-    private MqttMessageType messageType;
+    private int messageType;
 
     /**
      * 是否重发

@@ -51,6 +51,7 @@ public class BrokerServer implements IBrokerServer {
      * mqttBroker初始化
      */
     private void mqttBroker() throws Exception {
+
         String address = InetAddress.getLocalHost().getHostAddress();
         try {
             new ServerBootstrap()
