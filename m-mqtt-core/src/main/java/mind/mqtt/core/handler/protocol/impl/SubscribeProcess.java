@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
 import lombok.RequiredArgsConstructor;
 import mind.common.utils.TopicUtil;
+import mind.model.builder.MqttMessageBuilder;
 import mind.model.entity.Subscribe;
 import mind.mqtt.core.handler.protocol.MqttProcess;
 import mind.mqtt.store.channel.ChannelStore;
@@ -56,17 +57,7 @@ public class SubscribeProcess implements MqttProcess {
 
         });
         // 3. 应答客户端
-        ctx.writeAndFlush(subAckMessage(subscribeMsg.variableHeader().messageId(), grantedQosList));
-    }
-
-    /**
-     * 订阅响应消息
-     */
-    public MqttSubAckMessage subAckMessage(int messageId, List<Integer> mqttQosList) {
-        return (MqttSubAckMessage) MqttMessageFactory.newMessage(
-                new MqttFixedHeader(MqttMessageType.SUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
-                MqttMessageIdVariableHeader.from(messageId),
-                new MqttSubAckPayload(mqttQosList));
+        ctx.writeAndFlush(MqttMessageBuilder.newMqttSubAckMessage(subscribeMsg.variableHeader().messageId(), grantedQosList));
     }
 
 

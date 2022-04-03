@@ -1,14 +1,13 @@
 package mind.mqtt.core.handler.protocol.impl;
 
-import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mind.model.builder.MqttMessageBuilder;
 import mind.model.entity.Message;
 import mind.mqtt.core.dispatcher.MqttMessageDispatcher;
 import mind.mqtt.core.handler.protocol.MqttProcess;
-import mind.mqtt.core.retry.PublishQos2Task;
 import mind.mqtt.store.channel.ChannelStore;
 import mind.mqtt.store.mqttStore.impl.Qos2MessageStoreImpl;
 import org.springframework.stereotype.Service;
@@ -39,12 +38,6 @@ public class PubRelProcess implements MqttProcess {
         // 已完成qos2消息接收，开始广播转发消息到其它客户端
         mqttMessageDispatcher.publish(qos2Message);
         log.debug("broker -->> publisher------回复客户端接收完成（qos2 第三步）PUB-COM");
-        ctx.writeAndFlush(this.pubCompMessage(messageId));
-    }
-
-    public MqttMessage pubCompMessage(int messageId) {
-        return MqttMessageFactory.newMessage(
-                new MqttFixedHeader(MqttMessageType.PUBCOMP, false, MqttQoS.AT_MOST_ONCE, false, 0),
-                MqttMessageIdVariableHeader.from(messageId), null);
+        ctx.writeAndFlush(MqttMessageBuilder.newMqttPubCompMessage(messageId));
     }
 }

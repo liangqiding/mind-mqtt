@@ -6,8 +6,6 @@ import io.netty.handler.codec.mqtt.MqttMessageIdVariableHeader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mind.mqtt.core.handler.protocol.MqttProcess;
-import mind.mqtt.core.retry.PublishQos2Task;
-import mind.mqtt.store.channel.ChannelStore;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,8 +20,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class PubCompProcess implements MqttProcess {
 
-
-    private final PublishQos2Task publishQos2Task;
 
     @Override
     public void process(ChannelHandlerContext ctx, MqttMessage mqttMessage) {

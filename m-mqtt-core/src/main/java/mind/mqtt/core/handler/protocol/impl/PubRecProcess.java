@@ -4,8 +4,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mind.model.builder.MqttMessageBuilder;
 import mind.mqtt.core.handler.protocol.MqttProcess;
-import mind.mqtt.core.retry.PublishQos2Task;
+import mind.mqtt.core.retry.PublishTask;
 import mind.mqtt.store.channel.ChannelStore;
 import mind.mqtt.store.mqttStore.impl.Qos2MessageStoreImpl;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PubRecProcess implements MqttProcess {
 
-    private final PublishQos2Task publishQos2Task;
+    private final PublishTask publishTask;
 
     private final Qos2MessageStoreImpl qos2MessageStore;
 
@@ -34,15 +35,11 @@ public class PubRecProcess implements MqttProcess {
         // 1. qos2 丢弃存储的消息
         qos2MessageStore.remove(ChannelStore.getClientId(ctx), messageId);
         // 停止发布任务
-        publishQos2Task.stop(ChannelStore.getClientId(ctx), messageId);
+        publishTask.stop(ChannelStore.getClientId(ctx), messageId);
         // 2. 回复PUB-REL并存储PUB-REL消息，等待客户端回复PUB-COM
-        ctx.writeAndFlush(pubRelMessage(variableHeader.messageId()));
+        ctx.writeAndFlush(MqttMessageBuilder.newMqttPubRelMessage(variableHeader.messageId()));
         log.debug("broker -->> subscriber------回复客户端发布已释放 PUB-REL");
     }
 
-    public MqttMessage pubRelMessage(int messageId) {
-        return MqttMessageFactory.newMessage(
-                new MqttFixedHeader(MqttMessageType.PUBREL, false, MqttQoS.AT_MOST_ONCE, false, 0),
-                MqttMessageIdVariableHeader.from(messageId), null);
-    }
+
 }

@@ -7,6 +7,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mind.common.constant.NettyConstant;
+import mind.model.builder.MqttMessageBuilder;
 import mind.model.entity.Message;
 import mind.model.entity.MqttSession;
 import mind.mqtt.auth.IConnectAuth;
@@ -38,14 +39,14 @@ public class ConnectProcess implements MqttProcess {
         MqttConnectMessage connectMsg = (MqttConnectMessage) mqttMessage;
         // 1. 鉴权
         if (!connectAuth.authenticate(ctx, connectMsg)) {
-            ctx.writeAndFlush(this.connAckMsg(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD));
+            ctx.writeAndFlush(MqttMessageBuilder.newMqttConnAckMessage(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD));
             return;
         }
         String clientId = connectMsg.payload().clientIdentifier();
         int keepAliveTime = connectMsg.variableHeader().keepAliveTimeSeconds();
         // 2. clientId做非空处理
         if (StrUtil.isBlank(clientId)) {
-            ctx.writeAndFlush(this.connAckMsg(MqttConnectReturnCode.CONNECTION_REFUSED_CLIENT_IDENTIFIER_NOT_VALID));
+            ctx.writeAndFlush(MqttMessageBuilder.newMqttConnAckMessage(MqttConnectReturnCode.CONNECTION_REFUSED_CLIENT_IDENTIFIER_NOT_VALID));
             return;
         }
         // 3. 绑定频道
@@ -57,7 +58,7 @@ public class ConnectProcess implements MqttProcess {
         // 5. 保存会话及遗嘱
         this.saveSession(ctx, connectMsg);
         // 6. 返回ack报文
-        ctx.writeAndFlush(this.connAckMsg(MqttConnectReturnCode.CONNECTION_ACCEPTED));
+        ctx.writeAndFlush(MqttMessageBuilder.newMqttConnAckMessage(MqttConnectReturnCode.CONNECTION_ACCEPTED));
         // 7. isCleanSession为false时, 客户端上线接收离线消息
         if (!connectMsg.variableHeader().isCleanSession()) {
             this.sendUndoneMessage(ctx);
@@ -77,16 +78,6 @@ public class ConnectProcess implements MqttProcess {
         }
     }
 
-    /**
-     * 响应报文
-     *
-     * @param connectReturnCode 响应码
-     */
-    private MqttConnAckMessage connAckMsg(MqttConnectReturnCode connectReturnCode) {
-        return (MqttConnAckMessage) MqttMessageFactory.newMessage(
-                new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
-                new MqttConnAckVariableHeader(connectReturnCode, false), null);
-    }
 
     /**
      * 存储会话及遗嘱

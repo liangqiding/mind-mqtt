@@ -3,6 +3,7 @@ package mind.mqtt.core.handler.protocol.impl;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
 import lombok.RequiredArgsConstructor;
+import mind.model.builder.MqttMessageBuilder;
 import mind.mqtt.core.handler.protocol.MqttProcess;
 import mind.mqtt.store.channel.ChannelStore;
 import mind.mqtt.store.mqttStore.impl.MqttSessionStore;
@@ -26,13 +27,8 @@ public class UnsubscribeProcess implements MqttProcess {
         MqttUnsubscribeMessage unsubscribeMessage = (MqttUnsubscribeMessage) mqttMessage;
         List<String> topicFilters = unsubscribeMessage.payload().topics();
         mqttSessionStore.removeSub(ChannelStore.getClientId(ctx), topicFilters);
-        ctx.writeAndFlush(this.unsubAckMessage(unsubscribeMessage.variableHeader().messageId()));
+        ctx.writeAndFlush(MqttMessageBuilder.newMqttUnsubAckMessage(unsubscribeMessage.variableHeader().messageId()));
     }
 
-    public MqttUnsubAckMessage unsubAckMessage(int messageId) {
-        return (MqttUnsubAckMessage) MqttMessageFactory.newMessage(
-                new MqttFixedHeader(MqttMessageType.UNSUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
-                MqttMessageIdVariableHeader.from(messageId), null);
-    }
 
 }

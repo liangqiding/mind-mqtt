@@ -7,6 +7,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mind.model.builder.MqttMessageBuilder;
 import mind.model.entity.Message;
 import mind.model.entity.Subscribe;
 import mind.mqtt.core.dispatcher.MqttMessageDispatcher;
@@ -111,16 +112,10 @@ public class PubProcess implements MqttProcess {
 
 
     private void sendPubAckMessage(ChannelHandlerContext ctx, int messageId) {
-        MqttPubAckMessage pubAckMessage = (MqttPubAckMessage) MqttMessageFactory.newMessage(
-                new MqttFixedHeader(MqttMessageType.PUBACK, false, AT_MOST_ONCE, false, 0),
-                MqttMessageIdVariableHeader.from(messageId), null);
-        ctx.writeAndFlush(pubAckMessage);
+        ctx.writeAndFlush(MqttMessageBuilder.newMqttPubAckMessage(messageId));
     }
 
     private void sendPubRecMessage(ChannelHandlerContext ctx, int messageId) {
-        MqttMessage pubRecMessage = MqttMessageFactory.newMessage(
-                new MqttFixedHeader(MqttMessageType.PUBREC, false, AT_MOST_ONCE, false, 0),
-                MqttMessageIdVariableHeader.from(messageId), null);
-        ctx.writeAndFlush(pubRecMessage);
+        ctx.writeAndFlush(MqttMessageBuilder.newMqttPubRecMessage(messageId));
     }
 }
