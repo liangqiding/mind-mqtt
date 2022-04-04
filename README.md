@@ -1,6 +1,6 @@
 <h1 align="center">mind-mqtt-springboot-netty</h1> 
 
-[toc]
+
 
 ## 简介
 
