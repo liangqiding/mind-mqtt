@@ -1,13 +1,10 @@
 package mind.model.builder;
 
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.mqtt.*;
 import mind.model.entity.Message;
 import java.util.List;
-
-import static io.netty.handler.codec.mqtt.MqttQoS.AT_MOST_ONCE;
 
 /**
  * mqtt消息构建
@@ -44,7 +41,7 @@ public class MqttMessageBuilder {
      */
     public static MqttPubAckMessage newMqttPubAckMessage(int messageId) {
         return (MqttPubAckMessage) MqttMessageFactory.newMessage(
-                new MqttFixedHeader(MqttMessageType.PUBACK, false, AT_MOST_ONCE, false, 0),
+                new MqttFixedHeader(MqttMessageType.PUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
                 MqttMessageIdVariableHeader.from(messageId), null);
     }
 
@@ -55,7 +52,7 @@ public class MqttMessageBuilder {
      */
     public static MqttMessage newMqttPubRecMessage(int messageId) {
         return MqttMessageFactory.newMessage(
-                new MqttFixedHeader(MqttMessageType.PUBREC, false, AT_MOST_ONCE, false, 0),
+                new MqttFixedHeader(MqttMessageType.PUBREC, false, MqttQoS.AT_MOST_ONCE, false, 0),
                 MqttMessageIdVariableHeader.from(messageId), null);
     }
 

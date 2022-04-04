@@ -13,6 +13,9 @@ import io.netty.util.AttributeKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mind.common.utils.MqttUtils;
+import mind.model.entity.Message;
+import mind.model.entity.MqttSession;
+import mind.mqtt.core.dispatcher.MqttMessageDispatcher;
 import mind.mqtt.core.handler.protocol.MqttProcess;
 import mind.mqtt.store.channel.ChannelStore;
 import mind.mqtt.store.mqttStore.impl.MqttSessionStore;
@@ -39,6 +42,8 @@ public class MqttMessageHandler extends SimpleChannelInboundHandler<MqttMessage>
 
     private final MqttSessionStore mqttSessionStore;
 
+    private final MqttMessageDispatcher mqttMessageDispatcher;
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, MqttMessage mqttMessage) throws Exception {
 
@@ -58,7 +63,7 @@ public class MqttMessageHandler extends SimpleChannelInboundHandler<MqttMessage>
                 mqttProcessMap.get("conAckProcess").process(ctx, mqttMessage);
                 break;
             case PUBLISH:
-                mqttProcessMap.get("pubProcess").process(ctx, mqttMessage);
+                mqttProcessMap.get("publishProcess").process(ctx, mqttMessage);
                 break;
             case PUBACK:
                 mqttProcessMap.get("pubAckProcess").process(ctx, mqttMessage);
@@ -94,7 +99,12 @@ public class MqttMessageHandler extends SimpleChannelInboundHandler<MqttMessage>
     public void channelInactive(ChannelHandlerContext ctx) {
         String clientId = ChannelStore.getClientId(ctx);
         log.debug("\n");
-        log.warn("连接断开,clientId：{}", clientId);
+        MqttSession session = mqttSessionStore.getSession(clientId);
+        if (session.isWillFlag()) {
+            Message willMessage = session.getWillMessage();
+            mqttMessageDispatcher.publish(willMessage);
+        }
+        log.warn("连接断开,clientId:{},willFlag:{}", clientId, session.isWillFlag());
         // 解除绑定
         ChannelStore.closeAndClean(clientId);
         // 删除会话及所有缓存包括订阅信息

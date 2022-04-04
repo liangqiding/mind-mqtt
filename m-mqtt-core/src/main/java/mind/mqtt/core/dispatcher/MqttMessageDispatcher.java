@@ -44,12 +44,15 @@ public class MqttMessageDispatcher {
             );
             switch (mqttQoS) {
                 case AT_MOST_ONCE:
-                    log.debug("broker -->> subscriber------开始转发qos=0的消息消息");
+                    log.debug("broker -->> subscriber------开始转发qos0的消息消息");
                     ChannelManage.sendByCid(subscribe.getClientId(), publishMessage);
                     break;
                 case AT_LEAST_ONCE:
+                    log.debug("broker -->> subscriber------开始转发消息（qos1 发送端 第一步）");
+                    publishTask.start(message);
+                    break;
                 case EXACTLY_ONCE:
-                    log.debug("broker -->> subscriber------开始转发qos>0的消息消息");
+                    log.debug("broker -->> subscriber------开始转发消息（qos2 发送端 第一步）");
                     publishTask.start(message);
                     break;
                 case FAILURE:
@@ -60,5 +63,8 @@ public class MqttMessageDispatcher {
         });
     }
 
-
+    public void publishByClientId(Message message) {
+        MqttPublishMessage mqttPublishMessage = MqttMessageBuilder.newMqttPublishMessage(message);
+        ChannelManage.sendByCid(message.getToClientId(), mqttPublishMessage);
+    }
 }

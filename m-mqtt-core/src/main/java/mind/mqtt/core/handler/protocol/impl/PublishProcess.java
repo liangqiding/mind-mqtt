@@ -32,7 +32,7 @@ import static io.netty.handler.codec.mqtt.MqttQoS.AT_MOST_ONCE;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class PubProcess implements MqttProcess {
+public class PublishProcess implements MqttProcess {
 
     private final RetainMessageStoreImpl retainMessageStore;
 
@@ -51,7 +51,7 @@ public class PubProcess implements MqttProcess {
         String clientId = ChannelStore.getClientId(ctx);
         int packetId = pubMsg.variableHeader().packetId();
         byte[] messageBytes = ByteBufUtil.getBytes(pubMsg.payload());
-        // 1. 权限判断，在 MQTT v3.1 和 v3.1.1 协议中，发布操作被拒绝后服务器无任何报文错误返回，这是协议设计的一个缺陷。但在 MQTT v5.0 协议上已经支持应答一个相应的错误报文。
+        // 1. 权限判断，在 MQTT v5.0 协议上已经支持应答一个相应的错误报文。
         Message message = new Message()
                 .setMessageId(packetId)
                 .setRetain(retain)
@@ -64,30 +64,40 @@ public class PubProcess implements MqttProcess {
                 .setTopic(pubTopic);
         // 消息保存
         this.retainMessage(message);
-        //
+        // 应答publisher
         switch (mqttQoS) {
             case AT_MOST_ONCE:
+                // 转发到其它subscriber
                 mqttMessageDispatcher.publish(message);
                 break;
             case AT_LEAST_ONCE:
                 Optional.of(packetId)
+                        // qos1 消息id不能为-1
                         .filter(pId -> pId != -1)
                         .ifPresent(pId -> {
                             log.debug("broker -->> publisher------回复客户端，发布确认（QoS 1，消息确认）");
+                            // 回复publisher PubAck
                             this.sendPubAckMessage(ctx, pId);
+                            // 转发到其它subscriber
                             mqttMessageDispatcher.publish(message);
                         });
 
                 break;
             case EXACTLY_ONCE:
                 Optional.of(packetId)
+                        // qos2 消息id不能为-1
                         .filter(pId -> pId != -1)
+                        // 是否重复的qos2消息
+                        .filter(pid -> !this.qos2MessageStore.isRepeat(clientId, pid))
                         .ifPresent(pId -> {
-                            // 缓存消息
-                            qos2MessageStore.put(message);
-                            // 发送Rec，qos2第一步，告诉客户端发布已接收，等客户端回复REL，收到REL后再进行转发
+                            // 缓存消息标识符
+                            this.qos2MessageStore.put(clientId, message.getMessageId());
+                            // 发送Rec，qos2接收端第一步，告诉客户端发布已接收，等客户端回复REL，收到REL后再清除标识符
                             log.debug("broker -->> publisher------回复客户端，发布已接收（QoS 2，第一步）");
+                            // 回复publisher PubRec
                             this.sendPubRecMessage(ctx, pId);
+                            // 转发到其它subscriber
+                            mqttMessageDispatcher.publish(message);
                         });
                 break;
             case FAILURE:

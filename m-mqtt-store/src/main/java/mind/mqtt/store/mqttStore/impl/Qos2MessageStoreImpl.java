@@ -2,20 +2,16 @@ package mind.mqtt.store.mqttStore.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mind.common.utils.TopicUtil;
-import mind.model.entity.Message;
 import mind.mqtt.store.config.BorkerKey;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
 /**
- * 存储消息
+ * qos2标识符存储，参考mqtt5协议文档
  *
  * @author qiding
  */
@@ -27,33 +23,30 @@ public class Qos2MessageStoreImpl {
     private final RedissonClient redissonClient;
 
     /**
-     * qos2消息存储
+     * 参考mqtt5协议文档
+     * qos2消息标识符存储，用于判断消息是否重复,在没收到pub-com报文前，相同id的消息将被过滤
      */
-    public void put(Message message) {
-        RMapCache<Integer, Message> mapCache = redissonClient.getMapCache(BorkerKey.QOS2_MSG_FUN.apply(message.getFromClientId()));
-        if (message.getExpireTime() > 0) {
-            mapCache.put(message.getMessageId(), message, message.getExpireTime(), TimeUnit.SECONDS);
-        } else {
-            mapCache.put(message.getMessageId(), message);
-        }
+    public void put(String clientId, int messageId) {
+        RMapCache<Integer, Integer> mapCache = redissonClient.getMapCache(BorkerKey.QOS2_MSG_FUN.apply(clientId));
+        mapCache.put(messageId, 1, 60 * 30, TimeUnit.SECONDS);
+
     }
 
     /**
-     * 获取存储的消息
+     * 判断消息是否重复确保qos2消息只接收一次
      *
-     * @param clientId 客户端
-     * @param brokerId 消息id
+     * @param clientId  客户端
+     * @param messageId 消息id
      */
-    public Message getQos2Message(String clientId, int brokerId) {
-        RMapCache<Integer, Message> mapCache = redissonClient.getMapCache(BorkerKey.QOS2_MSG_FUN.apply(clientId));
-        return mapCache.get(brokerId);
-
+    public boolean isRepeat(String clientId, int messageId) {
+        RMapCache<Integer, Integer> mapCache = redissonClient.getMapCache(BorkerKey.QOS2_MSG_FUN.apply(clientId));
+        return mapCache.containsKey(messageId);
     }
 
     /**
-     * 删除该消息
+     * 去除标识符存储
      */
-    public void remove(String clientId, int brokerId) {
-        redissonClient.getMapCache(BorkerKey.QOS2_MSG_FUN.apply(clientId)).remove(brokerId);
+    public void remove(String clientId, int messageId) {
+        redissonClient.getMapCache(BorkerKey.QOS2_MSG_FUN.apply(clientId)).remove(messageId);
     }
 }

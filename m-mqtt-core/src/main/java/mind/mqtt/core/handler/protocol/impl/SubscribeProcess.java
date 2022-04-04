@@ -1,17 +1,17 @@
 package mind.mqtt.core.handler.protocol.impl;
 
-import cn.hutool.core.util.StrUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
 import lombok.RequiredArgsConstructor;
 import mind.common.utils.TopicUtil;
 import mind.model.builder.MqttMessageBuilder;
 import mind.model.entity.Subscribe;
+import mind.mqtt.core.dispatcher.MqttMessageDispatcher;
 import mind.mqtt.core.handler.protocol.MqttProcess;
 import mind.mqtt.store.channel.ChannelStore;
 import mind.mqtt.store.mqttStore.impl.MqttSessionStore;
+import mind.mqtt.store.mqttStore.impl.RetainMessageStoreImpl;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +25,10 @@ import java.util.List;
 public class SubscribeProcess implements MqttProcess {
 
     private final MqttSessionStore mqttSessionStore;
+
+    private final RetainMessageStoreImpl retainMessageStore;
+
+    private final MqttMessageDispatcher mqttMessageDispatcher;
 
     @Override
     public void process(ChannelHandlerContext ctx, MqttMessage mqttMessage) {
@@ -53,9 +57,11 @@ public class SubscribeProcess implements MqttProcess {
             }
         });
         // 2. 发布保留消息
-        subscribedTopicList.forEach(s -> {
-
-        });
+        subscribedTopicList.forEach(topicFilter ->
+                retainMessageStore.searchRetainMessage(topicFilter).forEach(message ->
+                        mqttMessageDispatcher.publishByClientId(message.setToClientId(clientId))
+                )
+        );
         // 3. 应答客户端
         ctx.writeAndFlush(MqttMessageBuilder.newMqttSubAckMessage(subscribeMsg.variableHeader().messageId(), grantedQosList));
     }
