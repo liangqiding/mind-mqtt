@@ -12,7 +12,10 @@
 
 ## 简介
 
-基于Springboot、netty实现的高性能高可用MQTT broker，支持集群，轻松百万连接，千万级别消息量，支持MQTT3.1、MQTT3.1.1、MQTT5.0协议，支持mqtt/ws连接。
+- 基于Springboot、netty实现的高性能高可用MQTT broker，支持集群，轻松百万连接，千万级别消息量，支持MQTT3.1、MQTT3.1.1、MQTT5.0协议，支持mqtt/ws连接。
+
+- 代码注释规整，严格按照阿里编程规范。
+- 可作为脚手架进行二次业务扩展开发。
 
 - 支持软件互联，如经典的聊天、群聊系统接入。
 
