@@ -20,6 +20,6 @@ public class PingRegProcess implements MqttProcess {
     @Override
     public void process(ChannelHandlerContext ctx, MqttMessage mqttMessage) {
         log.info("ping请求");
-        ctx.writeAndFlush(MqttMessageBuilder.getPingRegMeg());
+        ctx.writeAndFlush(MqttMessageBuilder.getPingResp());
     }
 }

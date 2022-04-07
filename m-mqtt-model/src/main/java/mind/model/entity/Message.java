@@ -1,9 +1,8 @@
 package mind.model.entity;
 
-import io.netty.handler.codec.mqtt.MqttMessageType;
+
 import lombok.Data;
 import lombok.experimental.Accessors;
-
 import java.io.Serializable;
 
 /**

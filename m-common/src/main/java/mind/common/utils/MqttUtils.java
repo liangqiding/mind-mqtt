@@ -2,10 +2,12 @@ package mind.common.utils;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author qiding
  */
+@Slf4j
 public class MqttUtils {
 
     /**
@@ -14,6 +16,7 @@ public class MqttUtils {
     public static boolean isMqttMessage(ChannelHandlerContext ctx, MqttMessage mqttMessage) {
         if (mqttMessage.decoderResult().isFailure()) {
             Throwable cause = mqttMessage.decoderResult().cause();
+            cause.printStackTrace();
             if (cause instanceof MqttUnacceptableProtocolVersionException) {
                 ctx.writeAndFlush(MqttMessageFactory.newMessage(
                         new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),

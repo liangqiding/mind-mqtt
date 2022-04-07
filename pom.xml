@@ -12,6 +12,7 @@
         <module>m-mqtt-auth</module>
         <module>m-mqtt-core</module>
         <module>m-mqtt-monitor</module>
+        <module>m-mqtt-cluster</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -98,6 +99,11 @@
             <dependency>
                 <groupId>mind.mqtt</groupId>
                 <artifactId>m-mqtt-store</artifactId>
+                <version>${mind-mqtt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>mind.mqtt</groupId>
+                <artifactId>m-mqtt-cluster</artifactId>
                 <version>${mind-mqtt.version}</version>
             </dependency>
             <dependency>

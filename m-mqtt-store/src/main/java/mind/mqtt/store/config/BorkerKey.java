@@ -52,6 +52,10 @@ public class BorkerKey {
     public final static String ROOT = "mind-mqtt:";
 
     /**
+     * 集群节点
+     */
+    public final static String CLUSTER_KEY = "mind-mqtt:cluster:";
+    /**
      * brokerId
      */
     private static String BROKER_ID;

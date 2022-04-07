@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import mind.model.builder.MqttMessageBuilder;
 import mind.model.entity.Message;
 import mind.model.entity.Subscribe;
+import mind.mqtt.cluster.provider.MqttMessageProvider;
 import mind.mqtt.core.retry.PublishTask;
 import mind.mqtt.store.ChannelManage;
 import mind.mqtt.store.mqttStore.impl.MqttSessionStore;
@@ -38,10 +39,10 @@ public class MqttMessageDispatcher {
         subscribes.forEach(subscribe -> {
             // 转发的qos取决于用户订阅
             MqttQoS mqttQoS = MqttQoS.valueOf(Math.min(message.getQos(), subscribe.getMqttQoS()));
-            MqttPublishMessage publishMessage = MqttMessageBuilder.newMqttPublishMessage(message
+            message
                     .setQos(mqttQoS.value())
-                    .setToClientId(subscribe.getClientId())
-            );
+                    .setToClientId(subscribe.getClientId());
+            MqttPublishMessage publishMessage = MqttMessageBuilder.newMqttPublishMessage(message);
             switch (mqttQoS) {
                 case AT_MOST_ONCE:
                     log.debug("broker -->> subscriber------开始转发qos0的消息消息");

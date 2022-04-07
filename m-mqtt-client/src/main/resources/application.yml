@@ -1,0 +1,25 @@
+server:
+  port: 9999
+
+spring:
+  application:
+    name: m-mqtt-client
+
+# mqtt
+mqtt:
+  client:
+    host: 127.0.0.1
+    port: 19999
+  broker:
+    host: 127.0.0.1
+    port: 1883
+
+# 日记配置
+logging:
+  file:
+    name: logs/${spring.application.name}/${spring.application.name}
+  logback:
+    rollingpolicy:
+      max-history: 10
+  level:
+    mind.mqtt: debug

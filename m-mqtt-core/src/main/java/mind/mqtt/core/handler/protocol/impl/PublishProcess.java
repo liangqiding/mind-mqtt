@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import mind.model.builder.MqttMessageBuilder;
 import mind.model.entity.Message;
 import mind.model.entity.Subscribe;
+import mind.mqtt.cluster.provider.MqttMessageProvider;
 import mind.mqtt.core.dispatcher.MqttMessageDispatcher;
 import mind.mqtt.core.handler.protocol.MqttProcess;
 import mind.mqtt.store.ChannelManage;
@@ -40,6 +41,8 @@ public class PublishProcess implements MqttProcess {
 
     private final MqttMessageDispatcher mqttMessageDispatcher;
 
+    private final MqttMessageProvider mqttMessageProvider;
+
     @Override
     public void process(ChannelHandlerContext ctx, MqttMessage mqttMessage) {
         log.debug("publisher -->> broker------发布消息，请求转发");
@@ -69,6 +72,8 @@ public class PublishProcess implements MqttProcess {
             case AT_MOST_ONCE:
                 // 转发到其它subscriber
                 mqttMessageDispatcher.publish(message);
+                // 集群-消息转发到其它服务器节点
+                mqttMessageProvider.relayPublish(message);
                 break;
             case AT_LEAST_ONCE:
                 Optional.of(packetId)
@@ -80,6 +85,8 @@ public class PublishProcess implements MqttProcess {
                             this.sendPubAckMessage(ctx, pId);
                             // 转发到其它subscriber
                             mqttMessageDispatcher.publish(message);
+                            // 集群-消息转发到其它服务器节点
+                            mqttMessageProvider.relayPublish(message);
                         });
 
                 break;
@@ -98,6 +105,8 @@ public class PublishProcess implements MqttProcess {
                             this.sendPubRecMessage(ctx, pId);
                             // 转发到其它subscriber
                             mqttMessageDispatcher.publish(message);
+                            // 集群-消息转发到其它服务器节点
+                            mqttMessageProvider.relayPublish(message);
                         });
                 break;
             case FAILURE:

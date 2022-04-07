@@ -15,7 +15,7 @@ import java.util.concurrent.*;
  * @author qiding
  */
 @Slf4j
-public abstract class AbstractMqttTask {
+public abstract class AbstractMqttTask implements IMqttRetryTask{
 
     /**
      * 计算默认线程池大小，参考Netty
@@ -86,32 +86,22 @@ public abstract class AbstractMqttTask {
         }, delay, TimeUnit.SECONDS);
     }
 
-    /**
-     * 开始定时循环发送
-     *
-     * @param message 封装的消息
-     */
+    @Override
     public void start(Message message) {
-        // 先发送一次
-        this.publish(message);
-        // 接下来循环发
-        log.info("循环发送执行{},{}", message.getToClientId(), message.getMessageId());
+        log.debug("开始定时发送");
         // 若已存在该任务，则取消
         if (TASK.containsKey(this.taskId(message.getToClientId(), message.getMessageId()))) {
             return;
         }
+        // 先发送一次
+        this.publish(message);
         // 标志任务
         TASK.put(this.taskId(message.getToClientId(), message.getMessageId()), 1);
-        // 创建延时任务
+        // 创建重试任务
         this.newSchedule(message, TIMEOUT);
     }
 
-    /**
-     * 停止发送
-     *
-     * @param clientId  客户端id
-     * @param messageId 消息id
-     */
+    @Override
     public void stop(String clientId, int messageId) {
         TASK.remove(this.taskId(clientId, messageId));
     }
