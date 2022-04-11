@@ -7,8 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import mind.model.builder.MqttMessageBuilder;
 import mind.model.entity.Connect;
 import mind.model.entity.Message;
+import mind.mqtt.client.server.IMqttClient;
 import mind.mqtt.client.server.MqttClient;
 import org.springframework.web.bind.annotation.*;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
@@ -21,6 +23,8 @@ import java.util.Random;
 @RestController
 @Slf4j
 public class MqttApi {
+
+    private final IMqttClient mqttClient;
 
     /**
      * 登录
@@ -75,6 +79,15 @@ public class MqttApi {
         return "发送成功";
     }
 
+
+    /**
+     * 测试发送
+     */
+    @GetMapping("reconnect")
+    public String reconnect() throws Exception {
+        mqttClient.reconnect();
+        return "重启指令发送成功";
+    }
 
     /**
      * 测试发送

@@ -69,6 +69,11 @@
       "name": "redisson.use-epoll",
       "type": "java.lang.String",
       "description": "传输模式 linux上开启会有更高的性能."
+    },
+    {
+      "name": "mind.mqtt.monitor.enable",
+      "type": "java.lang.String",
+      "description": "是否开始健康监控."
     }
   ]
 }

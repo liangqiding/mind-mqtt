@@ -7,14 +7,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * 服务配置
+ * 服务yml配置
  *
  * @author qiding
  */
-@Component
+
 @Accessors(chain = true)
-@NoArgsConstructor
-@ConfigurationProperties(prefix = BrokerProperties.PREFIX)
 @Data
 public class BrokerProperties {
 

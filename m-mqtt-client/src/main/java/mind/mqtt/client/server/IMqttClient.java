@@ -17,6 +17,14 @@ public interface IMqttClient {
 
 
     /**
+     * 重启
+     *
+     * @throws Exception e
+     */
+    void reconnect() throws Exception;
+
+
+    /**
      * 优雅的结束服务器
      *
      * @throws InterruptedException 提前中断异常

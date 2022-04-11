@@ -17,7 +17,7 @@ import java.util.List;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-@ConditionalOnExpression("'${mind.monitor.enable:true}' == 'true'")
+@ConditionalOnExpression("'${mind.mqtt.monitor.enable:true}' == 'true'")
 public class ScheduleRunner {
 
     /**

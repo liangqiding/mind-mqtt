@@ -29,7 +29,6 @@ public class ChannelInit extends ChannelInitializer<SocketChannel> {
      * IO处理程序
      */
     private final MqttMessageHandler mqttMessageHandler;
-
     /**
      * 异常处理程序
      */

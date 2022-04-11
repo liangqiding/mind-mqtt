@@ -2,7 +2,6 @@ package mind.mqtt.client.server;
 
 
 import io.netty.bootstrap.Bootstrap;
-
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -14,9 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import mind.mqtt.client.channel.ChannelInit;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.PreDestroy;
-
 
 /**
  * 启动 Broker
@@ -33,6 +30,8 @@ public class MqttClient implements IMqttClient {
     private static final EventLoopGroup WORKER_GROUP = new NioEventLoopGroup();
 
     public static SocketChannel socketChannel;
+
+    public static Bootstrap bootstrap;
 
     @Value("${mqtt.client.host}")
     private String clientHost;
@@ -52,25 +51,38 @@ public class MqttClient implements IMqttClient {
         this.mqttClient();
     }
 
+    @Override
+    public void reconnect() throws Exception {
+        socketChannel.close();
+        this.connect();
+    }
+
     /**
      * mqttBroker初始化
      */
-    private void mqttClient() throws Exception {
+    private void mqttClient(){
         try {
-            Bootstrap option = new Bootstrap()
+            bootstrap = new Bootstrap()
                     .remoteAddress(clientHost, clientPort)
                     .handler(channelInit)
                     .channel(NioSocketChannel.class)
-                    .option(ChannelOption.SO_BACKLOG, 128);
-            option.group(WORKER_GROUP);
-            ChannelFuture future = option.connect(brokerHost, brokerPort).sync();
-            if (future.isSuccess()) {
-                socketChannel = (SocketChannel) future.channel();
-                log.info("connect server success");
-            }
+                    .option(ChannelOption.TCP_NODELAY, true);
+            bootstrap.group(WORKER_GROUP);
+            this.connect();
         } catch (Exception e) {
             e.printStackTrace();
             WORKER_GROUP.shutdownGracefully();
+        }
+    }
+
+    /**
+     * 连接服务器
+     */
+    private void connect() throws InterruptedException {
+        ChannelFuture future = bootstrap.connect(brokerHost, brokerPort).sync();
+        if (future.isSuccess()) {
+            socketChannel = (SocketChannel) future.channel();
+            log.info("connect server success");
         }
     }
 

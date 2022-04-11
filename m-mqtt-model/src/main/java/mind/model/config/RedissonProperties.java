@@ -1,23 +1,15 @@
 package mind.model.config;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
 /**
- * description : redisson配置
+ * redisson yml配置
  *
  * @author : qiDing
- * date: 2020-12-14 09:27
- * @version v1.0.0
  */
 @Data
 @Accessors(chain = true)
-@NoArgsConstructor
-@ConfigurationProperties(prefix = RedissonProperties.PREFIX)
-@Component
 public class RedissonProperties {
 
     public static final String PREFIX = "redisson";

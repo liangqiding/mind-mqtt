@@ -1,9 +1,9 @@
 # mqtt 核心配置
 mind:
-  monitor:
-    # 是否启用健康监控，若想关闭，此处设为false即可
-    enable: false
   mqtt:
+    monitor:
+      # 是否启用健康监控，若想关闭，此处设为false即可
+      enable: false
     broker:
       host: 127.0.0.1
       id: mqtt-broker
