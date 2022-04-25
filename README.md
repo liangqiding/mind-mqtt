@@ -1,4 +1,10 @@
-<h1 align="center">mind-mqtt-springboot-netty</h1> 
+<h1 align="center" style="margin: 30px 0 30px; font-weight: bold;">mind-mqtt</h1>
+<h4 align="center">基于SpringBoot-netty的轻量级mqttbroker、mqttClient</h4>
+<p align="center">
+	<a href="#"><img src="https://img.shields.io/badge/Springboot-2.5.3-blue"></a>
+	<a href="#"><img src="https://img.shields.io/badge/license%20-MIT-green"></a>
+	<a href="https://gitee.com/liangqiding/springboot-cli"><img src="https://img.shields.io/badge/%E7%A0%81%E4%BA%91-%E5%9B%BD%E5%86%85%E5%9C%B0%E5%9D%80-yellow"></a>
+</p>
 
 * [简介](#简介)
 * [1\. 项目结构](#1-项目结构)
